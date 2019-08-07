@@ -91,7 +91,7 @@ let contentScrapTF = () =>
 
 	let getUserSteamLink = cb =>
 	{
-		/* ADD/REMOVE THE FIRST 1 OR 2 /'S ON THIS LINE TO TOGGLE WHAT CODE IS USED
+		//* ADD/REMOVE THE FIRST 1 OR 2 /'S ON THIS LINE TO TOGGLE WHAT CODE IS USED
 		// If you do not care if you cannot go to the steam inventory page of your own items
 		// you can drastically reduce wait times by adding the 2 /'s. If you do care,
 		// then remove the 2 /'s.
@@ -193,14 +193,6 @@ let contentScrapTF = () =>
 					}
 					let boxShadowSize = 0;
 					let boxShadowComma = "";
-					
-					let spellIndex = dataContent.indexOf("<span style='color:#8e44ad;'>Halloween Spell:");
-					if (spellIndex !== -1)
-					{
-						boxShadowSize++;
-						item.style.boxShadow += `${boxShadowComma}0 0 0 ${boxShadowSize*2}pt fuchsia`;
-						boxShadowComma = ", ";
-					}
 					
 					let partIndex = dataContent.indexOf("<span style='color:#CF6A32'>Strange Part:");
 					if (partIndex !== -1)
