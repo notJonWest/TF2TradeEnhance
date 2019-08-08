@@ -1,6 +1,6 @@
 let contentScrapTF = () =>
 {
-	const MY_STEAM_ID = '76561198262727995';
+	const MY_STEAM_ID = '76561198262727995'; //REPLACE THIS WITH YOUR OWN STEAM ID
 	let userStorageBots = 
 	[
 		42, //1
@@ -91,10 +91,13 @@ let contentScrapTF = () =>
 
 	let getUserSteamLink = cb =>
 	{
-		//* ADD/REMOVE THE FIRST 1 OR 2 /'S ON THIS LINE TO TOGGLE WHAT CODE IS USED
+		//* ADD/REMOVE THE FIRST 1 / ON THIS LINE TO TOGGLE WHAT CODE IS USED
 		// If you do not care if you cannot go to the steam inventory page of your own items
-		// you can drastically reduce wait times by adding the 2 /'s. If you do care,
-		// then remove the 2 /'s.
+		// you can drastically reduce wait times by adding the /. If you do care,
+		// then remove the /.
+		// TL;DR: Begin that first line with "//*" for slow, but more "user-friendly*"
+		// OR begin it with "/*" to make it faster.
+		// *user-friendly in this case means that the MY_STEAM_ID could be wrong and it will still work.
 		fetch(`https://cors-anywhere.herokuapp.com/${$$(".nav-userdropdown").href}`)
 		.then(d => d.text())
 		.then(d =>
