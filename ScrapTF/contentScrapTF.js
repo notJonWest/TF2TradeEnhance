@@ -1,8 +1,13 @@
 contentSites["scrap.tf"] = () =>
 {
+	let errorCodes = {
+		"ERROR.BOTID_URL": "Could not get bot's SteamID from URL",
+		"ERROR.USERID": "Could not get user's SteamID",
+		"ERROR.STORAGEBOT_INVENTORY": "Could not get storage bot's inventory"
+	};
 	//MY_STEAM_ID is used for adding steam inventory buttons to your own items (e.g. when selling)
-	//So it is not too too important if it doesn't work. It should still work in most cases, but according to
-	//an old comment by me, scrap.tf has a cors block whatever, so it doesn't work because of that?
+	//So it is not too too important if it doesn't work. Currently, it does not work because the profile page renders
+	//the steam link with JS, so normal webscrapping does not work (which is what I was doing)
 	//Solution: I'm just going to add a boolean check around the code that uses MY_STEAM_ID. I will advertise that people
 	//can edit the code to put in their own id to make it work more often.
 	const MY_STEAM_ID = '76561198262727995'; //REPLACE THIS WITH YOUR OWN STEAM ID
@@ -58,10 +63,13 @@ contentSites["scrap.tf"] = () =>
 
 	let getBotSteamIDByURL = (url, cb) =>
 	{
+		//If the object does not exist yet, create an empty one.
 		if (localStorage.getItem("botSteamID64") === null)
 			localStorage.setItem("botSteamID64", "{}");
 		
 		let getBotSteamID64 = () => JSON.parse(localStorage.getItem("botSteamID64"));
+		//No need to check for null localstorage since we did that above and created it if it was null.
+		//If the url is undefined, then we will use bp.tf's search engine to get it.
 		if (getBotSteamID64()[url] === undefined)
 		{
 			fetch(`https://cors-anywhere.herokuapp.com/https://backpack.tf/search?text=${url}`)
@@ -73,7 +81,7 @@ contentSites["scrap.tf"] = () =>
 					let botSteamID64 = getBotSteamID64();
 					botSteamID64[url] = data.results[0].steamid64;
 					localStorage.setItem("botSteamID64", JSON.stringify(botSteamID64));
-					cb(data.results[0].steamid64);
+					cb(true, data.results[0].steamid64);
 				}
 				else
 					fetch(`https://cors-anywhere.herokuapp.com/https://backpack.tf/im_feeling_lucky?text=${url}`)
@@ -87,39 +95,48 @@ contentSites["scrap.tf"] = () =>
 						let botSteamID64 = getBotSteamID64();
 						botSteamID64[url] = steamid64;
 						localStorage.setItem("botSteamID64", JSON.stringify(botSteamID64));
-						cb(steamid64);
+						cb(true, steamid64);
+					})
+					.catch(err =>
+					{
+						cb(false, err, errorCodes["ERROR.BOTID_URL"]);
 					});
+			})
+			.catch(err =>
+			{
+				cb(false, err, errorCodes["ERROR.BOTID_URL"]);
 			});
 		}
 		else
-			cb(getBotSteamID64()[url]);
+			cb(true, getBotSteamID64()[url]);
 	};
 
 	let getUserSteamLink = cb =>
 	{
-		//* ADD/REMOVE THE FIRST 1 / ON THIS LINE TO TOGGLE WHAT CODE IS USED
-		// If you do not care if you cannot go to the steam inventory page of your own items
-		// you can drastically reduce wait times by adding the /. If you do care,
-		// then remove the /.
-		// TL;DR: Begin that first line with "//*" for slow, but more "user-friendly*"
-		// OR begin it with "/*" to make it faster.
-		// *user-friendly in this case means that the MY_STEAM_ID could be wrong and it will still work.
-		fetch(`https://cors-anywhere.herokuapp.com/${$$(".nav-userdropdown").href}`)
-		.then(d => d.text())
-		.then(d =>
+		if (userAddedID)
 		{
-			let parsedHTML = htmlParser.parseFromString(d, "text/html");
-			if (parsedHTML.querySelector(".stm.stm-steam") == null)
-				//Recently (04/03/2019) scrap.tf put up a CORS block, so that caused some issues)
-				cb(`https://steamcommunity.com/profiles/${MY_STEAM_ID}`);
-			else
-				cb(parsedHTML.querySelector(".stm.stm-steam").parentNode.href);
-		})
-		.catch(e =>
+			//Directly use provided ID instead of fetching it from scrap.tf
+			cb(true, `https://steamcommunity.com/profiles/${MY_STEAM_ID}`);
+		}
+		else
 		{
-			cb(`https://steamcommunity.com/profiles/${MY_STEAM_ID}`);
-		});
-		//*/cb(`https://steamcommunity.com/profiles/${MY_STEAM_ID}`);//*/
+			//nav-userdropdown.href contains the link to the user's scrap.tf profile
+			fetch(`https://cors-anywhere.herokuapp.com/${$$(".nav-userdropdown").href}`)
+			.then(d => d.text())
+			.then(d =>
+			{
+				let parsedHTML = htmlParser.parseFromString(d, "text/html");
+				$$("html").parsed = parsedHTML;
+				if (parsedHTML.querySelector(".stm.stm-steam") == null)
+					cb(false, parsedHTML, errorCodes["ERROR.USERID"]);
+				else
+					cb(true, parsedHTML.querySelector(".stm.stm-steam").parentNode.href);
+			})
+			.catch(err =>
+			{
+				cb(false, err, errorCodes["ERROR.ERROR.USERID"]);
+			});
+		}
 	}
 
 	let getUserItemLink = (steamLink, itemId) =>
@@ -133,12 +150,11 @@ contentSites["scrap.tf"] = () =>
 		.then(data=>data.json())
 		.then(items =>
 		{
-			cb(items);
+			cb(true, items);
 		})
 		.catch(err =>
 		{
-			console.log(err);
-			cb({"assets":[]});
+			cb(false, errorCodes["ERROR.STORAGEBOT_INVENTORY"], err);
 		});
 	};
 
@@ -170,8 +186,13 @@ contentSites["scrap.tf"] = () =>
 
 	refreshReadability = () =>
 	{
-		getUserSteamLink(userSteamLink =>
+		getUserSteamLink((valid_userlink, response_userlink, err_userlink) =>
 		{
+			if (!valid_userlink)
+			{
+				console.log(response_userlink, err_userlink);
+			}
+
 			let itemsToSearch = [];
 			for (let item of [...$$All(".item")])
 			{
@@ -195,12 +216,15 @@ contentSites["scrap.tf"] = () =>
 						item.insertAdjacentHTML("beforeend", `<span class='itemLvl'>Lvl${lvl}</span>`);
 					}
 					
-					let nameIndex = item.getAttribute("data-title").indexOf("\"");
-					let descIndex = dataContent.indexOf("\"");
-					if (nameIndex !== -1 || descIndex !== -1)
-					{
+					//User applied Names/Descriptions are surrounded by "
+					let hasName = item.getAttribute("data-title").indexOf("\"") !== -1;
+					let hasDesc = dataContent.startsWith("\""); //Described items begin with the description
+					if (hasName || hasDesc)
 						item.insertAdjacentHTML("beforeend", `<span class="itemFraudWarning"></span>`);
-					}
+
+					//the boxshadow stuff is a remnant of when I used to have a border for spelled items
+					//it prevented part border and spell border from hiding each other
+					//might need it again at some point, so I'm keeping it here
 					let boxShadowSize = 0;
 					let boxShadowComma = "";
 					
@@ -250,7 +274,7 @@ contentSites["scrap.tf"] = () =>
 						{
 							createItemLink(item, getBotItemLink(itemId, botNum));
 						}
-						else if (isUserItem)
+						else if (valid_userlink && isUserItem)
 						{
 							createItemLink(item, getUserItemLink(userSteamLink, itemId));
 						}
@@ -269,21 +293,31 @@ contentSites["scrap.tf"] = () =>
 			{
 				if (botNum !== null)
 				{
-					getBotSteamIDByURL(botNumToID(botNum), id =>
+					getBotSteamIDByURL(botNumToID(botNum), (valid_botid, response_botid, err_botid) =>
 					{
-						getStorageBotInvJSON(id, inv =>
+						if (valid_botid)
 						{
-							for (let itemId of itemsToSearch)
+							getStorageBotInvJSON(response_botid, (valid_inv, response_inv, err_inv) =>
 							{
-								for (let asset of inv.assets)
+								if (valid_inv)
 								{
-									if (asset.assetid === itemId)
+									for (let itemId of itemsToSearch)
 									{
-										createItemLink($$(`[data-id='${itemId}']`), getBotItemLink(itemId, botNum));
+										for (let asset of response_inv.assets)
+										{
+											if (asset.assetid === itemId)
+											{
+												createItemLink($$(`[data-id='${itemId}']`), getBotItemLink(itemId, botNum));
+											}
+										}
 									}
 								}
-							}
-						});
+								else
+									console.log(response_inv, err_inv)
+							});
+						}
+						else
+							console.log(response_botid, err_botid);
 					});
 				}
 			}
