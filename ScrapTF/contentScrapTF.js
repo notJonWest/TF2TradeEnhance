@@ -1,6 +1,12 @@
-let contentScrapTF = () =>
+contentSites["scrap.tf"] = () =>
 {
+	//MY_STEAM_ID is used for adding steam inventory buttons to your own items (e.g. when selling)
+	//So it is not too too important if it doesn't work. It should still work in most cases, but according to
+	//an old comment by me, scrap.tf has a cors block whatever, so it doesn't work because of that?
+	//Solution: I'm just going to add a boolean check around the code that uses MY_STEAM_ID. I will advertise that people
+	//can edit the code to put in their own id to make it work more often.
 	const MY_STEAM_ID = '76561198262727995'; //REPLACE THIS WITH YOUR OWN STEAM ID
+	let userAddedID = false; //CHANGE THIS TO TRUE IF YOU HAVE ENTERED YOUR OWN ID ABOVE
 	let userStorageBots = 
 	[
 		42, //1
@@ -104,7 +110,8 @@ let contentScrapTF = () =>
 		{
 			let parsedHTML = htmlParser.parseFromString(d, "text/html");
 			if (parsedHTML.querySelector(".stm.stm-steam") == null)
-				cb(`https://steamcommunity.com/profiles/${MY_STEAM_ID}`); //Recently (04/03/2019) scrap.tf put up a CORS block, so that caused some issues)
+				//Recently (04/03/2019) scrap.tf put up a CORS block, so that caused some issues)
+				cb(`https://steamcommunity.com/profiles/${MY_STEAM_ID}`);
 			else
 				cb(parsedHTML.querySelector(".stm.stm-steam").parentNode.href);
 		})
@@ -137,7 +144,7 @@ let contentScrapTF = () =>
 
 	let botNumToID = num =>
 	{
-		if (typeof num === "number")
+		if (typeof(num) === "number")
 			return "tf2scrap" + num;
 		else
 			return num;

@@ -6,9 +6,23 @@
   "description": "Make TF2 trading sites easier to browse",
  
   "content_scripts": [{
-    "css": ["styles.css"],
-    "js": ["ScrapTF/contentScrapTF.js", "BackpackTF/contentBackpackTF.js", "content.js"],
-    "matches": ["https://scrap.tf/*", "https://backpack.tf/*"]
+    "css": [
+      "styles/fontawesome.min.css",
+		  "styles/styles.css"
+	  ],
+    "js": [
+      "setup.js",
+      "ScrapTF/contentScrapTF.js",
+      "BackpackTF/contentBackpackTF.js",
+      "Steam/contentSteam.js",
+      "content.js"
+	  ],
+    "matches": [
+      "https://scrap.tf/*",
+      "https://backpack.tf/*",
+      "https://steamcommunity.com/*/*/inventory",
+      "https://steamcommunity.com/tradeoffer/*"
+    ]
   }],
   "web_accessible_resources": ["ScrapTF/useScrapTF.js"]
 }

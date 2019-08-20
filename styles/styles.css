@@ -38,11 +38,11 @@
 #refreshReadability
 {
 	display: inline;
-	background-color: transparent;
+	background-color: inherit;
 	color: inherit;
 	z-index: 10;
 	margin: 0;
-	background: none;
+	border-radius: 5px;
 	border: none;
 }
 
