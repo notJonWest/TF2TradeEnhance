@@ -1,14 +1,29 @@
 {
-  "manifest_version": 2,
+  "manifest_version": 3,
  
   "name": "TF2 Trade Enhance",
-  "version": "0.0.2.0",
+  "version": "0.0.3.0",
   "description": "Make TF2 trading sites easier to browse",
  
   "content_scripts": [{
-    "css": ["styles.css"],
-    "js": ["ScrapTF/contentScrapTF.js", "BackpackTF/contentBackpackTF.js", "content.js"],
-    "matches": ["https://scrap.tf/*", "https://backpack.tf/*"]
+    "css": [
+      "styles/fontawesome.min.css",
+		  "styles/styles.css"
+	  ],
+    "js": [
+      "setup.js",
+      "ScrapTF/contentScrapTF.js",
+      "BackpackTF/contentBackpackTF.js",
+      "content.js"
+	  ],
+    "matches": [
+      "https://scrap.tf/*",
+      "https://backpack.tf/*"
+    ]
   }],
-  "web_accessible_resources": ["ScrapTF/useScrapTF.js"]
+  "web_accessible_resources": [
+  {
+	  "resources": ["ScrapTF/useScrapTF.js"],
+	  "matches": ["https://scrap.tf/*"]
+  }]
 }

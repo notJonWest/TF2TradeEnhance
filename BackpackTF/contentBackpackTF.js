@@ -1,4 +1,4 @@
-let contentBackpackTF = () =>
+contentSites["backpack.tf"] = () =>
 {
 	refreshReadability = () =>
 	{

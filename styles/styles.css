@@ -1,0 +1,63 @@
+.itemLvl
+{
+	color: #eee;
+	font-size: 9px;
+	position: absolute;
+	left: 4px;
+	top: 0;
+}
+.itemCraft
+{
+	color: #eee;
+	font-size: 9px;
+	position: absolute;
+	right: 4px;
+	top : 0;
+}
+.itemFraudWarning
+{
+	position: absolute;
+	top: 12px;
+	right: 4px;
+	height: 16px;
+	width: 16px;
+	background-image: url(https://steamcommunity-a.akamaihd.net/public/images/sharedfiles/icons/icon_warning.png);
+	background-position: 0px 0px;
+    background-repeat: no-repeat;
+	opacity: 0.8;
+}
+.item-group-num-text
+{
+	top: 12px !important;
+}
+
+.spelled-item
+{
+	background-color: #38F3AB;
+}
+#refreshReadability
+{
+	display: inline;
+	background-color: inherit;
+	color: inherit;
+	z-index: 10;
+	margin: 0;
+	border-radius: 5px;
+	border: none;
+}
+
+@media (max-width: 991px)
+{
+	.small-logo
+	{
+		display: inline !important;
+	}
+}
+
+@media (max-width: 767px)
+{
+	.small-logo
+	{
+		display: none !important;
+	}
+}

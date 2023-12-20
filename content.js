@@ -1,24 +1,14 @@
-let $$ = selector => document.querySelector(selector);
-let $$All = selector => document.querySelectorAll(selector);
+contentSites[location.host.toLowerCase()]();
 
-let refreshReadability = () =>
-{
-	console.log("This site is not fully supported by the TF2_TradeEnhance extention.");
-}
+let header = null;
+if ($$(".navbar-header") !== null)
+	header = $$(".navbar-header");
+else
+	header = $$("#inventory_logos");
 
-switch (location.host)
-{
-	case "scrap.tf":
-		contentScrapTF();
-		break;
-	case "backpack.tf":
-		contentBackpackTF();
-		break;
-}
-
-$$(".navbar-header").insertAdjacentHTML("afterbegin",
+header.insertAdjacentHTML("afterbegin",
 	`<button id="refreshReadability">
-		<i class="fa fa-refresh" aria-hidden="true"></i>
+		<i class="fa fa-sync"></i>
 	</button>`);
 $$("#refreshReadability").addEventListener("click", refreshReadability);
 window.addEventListener("load",	refreshReadability);
